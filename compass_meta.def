@@ -1,24 +1,22 @@
 Bootstrap: docker
 From: python:3.7.13
 
-%labels
-    Jiakuan Zhao
-    Version v0.0.1
+#ILOG_COS is conpatible with python 3.7 exclusively
 
-#download IBM cplex studio 
 %files
-    ./ibm_cplex/ILOG_COS_20.10_LINUX_X86_64.bin /opt/
-    ./ibm_cplex/installer.properties /opt/
+    /home/jiakuan/toolkits/ibm_cplex/ILOG_COS_20.10_LINUX_X86_64.bin /opt/
+    /home/jiakuan/toolkits/ibm_cplex/installer.properties /opt/
 %environment
     export LC_ALL="en_US.UTF-8"
     export LANG="en_US.UTF-8"
 
+#cache dir was swiched to user's home
 %post
     apt-get -y update \
     && apt-get install -y default-jre git --no-install-recommends  \
     && link /usr/bin/python3 /usr/bin/python \
     && pip install numpy \
-    && pip install git+https://github.com/yoseflab/Compass.git --upgrade \
+    && pip install git+https://github.com/ZhaoJK/Compass.git --upgrade \
     && apt-get clean \
     && chmod +x /opt/ILOG_COS_20.10_LINUX_X86_64.bin \
     && /opt/ILOG_COS_20.10_LINUX_X86_64.bin -f /opt/installer.properties \
@@ -26,3 +24,13 @@ From: python:3.7.13
     && export PATH=/opt/ILOG/bin/x86-64_linux:$PATH \
     && rm /opt/ILOG_COS_20.10_LINUX_X86_64.bin /opt/installer.properties \
     && python /opt/ILOG/python/setup.py install 
+
+%labels
+    Author: Jiakuan Zhao
+    Version: v0.0.1
+    Contact: zjk1989@gmail.com
+    
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    exec compass "$@"
